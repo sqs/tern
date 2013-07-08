@@ -6,6 +6,7 @@ var walk = require("acorn/util/walk");
 require("../plugin/requirejs.js");
 require("../plugin/node.js");
 require("../plugin/doc_comment.js");
+require("../plugin/backbone.js");
 var util = require("./util");
 
 var defData = {
