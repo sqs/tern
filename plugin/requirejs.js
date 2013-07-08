@@ -119,8 +119,10 @@
       if (!fn.isEmpty() && !fn.getFunctionType()) fn = null;
     }
 
-    if (fn) fn.propagate(new infer.IsCallee(infer.ANull, deps, null, out));
-    else if (args.length) args[0].propagate(out);
+    if (fn) {
+      fn.propagate(new infer.IsCallee(infer.ANull, deps, null, out));
+//      fn.propagate(out);
+    } else if (args.length) args[0].propagate(out);
 
     return infer.ANull;
   });
@@ -169,6 +171,11 @@
 
     server.on("beforeLoad", function(file) {
       this._requireJS.currentFile = file.name;
+    });
+    server.on("afterLoad", function(file) {
+      var iface = server._requireJS.interfaces[file.name];
+      if (iface) iface.propagate(server.cx.topScope.defProp(file.name.replace(/\.js$/, '')));
+      this._requireJS.currentFile = null;
     });
     server.on("reset", function() {
       this._requireJS.interfaces = Object.create(null);
