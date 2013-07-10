@@ -1,0 +1,7 @@
+{
+  "!name": "extendTest",
+  "extendTest": {
+    "!type": "fn(target: ?, source: ?) -> !0",
+    "!effects": ["copy !1 !0"]
+  }
+}
