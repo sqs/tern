@@ -34,9 +34,6 @@ S0.extend = function(protoProps) {
   var parent = this;
   var child = function() {};
   extend0(child, parent);
-  // for (var prop in parent) {
-  //   child[prop] = parent[prop];
-  // }
   extend0(child.prototype, protoProps);
   return child;
 }
@@ -58,9 +55,6 @@ S1.extend = function(protoProps) {
   var parent = this;
   var child = function() {};
   extend1(child, parent);
-  // for (var prop in parent) {
-  //   child[prop] = parent[prop];
-  // }
   extend1(child.prototype, protoProps);
   return child;
 }
@@ -81,10 +75,13 @@ S2.s2 = 1;
 S2.extend = function(protoProps) {
   var parent = this;
   var child = function() {};
+
   extendTest(child, parent);
+  // The tests below pass if the above line is replaced with this code:
   // for (var prop in parent) {
   //   child[prop] = parent[prop];
   // }
+
   extendTest(child.prototype, protoProps);
   return child;
 }
