@@ -47,7 +47,7 @@
 
   // Assume node.js & access to local file system
   if (require) (function() {
-    var module_ = require("module"), path = require("path");
+    var fs = require("fs"), module_ = require("module"), path = require("path");
 
     resolveModule = function(server, name, parent) {
       var data = server._node;
@@ -67,9 +67,7 @@
       if (known) {
         return data.modules[name] = known;
       } else {
-        try {
-          server.addFile(file);
-        } catch (e) { return infer.ANull; }
+        if (fs.existsSync(file)) server.addFile(file);
         return data.modules[file] = data.modules[name] = new infer.AVal;
       }
     };
