@@ -260,6 +260,11 @@
           "!doc": "To access the EventEmitter class, require('events').EventEmitter."
         }
       },
+      buffer: {
+        Buffer: "Buffer",
+        INSPECT_MAX_BYTES: "number"
+      },
+      module: "Module",
       stream: {
         "!type": "fn()",
         prototype: {

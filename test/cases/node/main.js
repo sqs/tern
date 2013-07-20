@@ -1,6 +1,7 @@
 // plugin=node
 
 var fs = require("fs"), crypto = require("crypto"), tls = require("tls");
+require("module"); require("buffer");
 
 fs.readFileSync; //: fn(filename: string, encoding: string) -> Buffer
 
