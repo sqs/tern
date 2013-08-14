@@ -47,7 +47,7 @@
 
   // Assume node.js & access to local file system
   if (require) (function() {
-    var module_ = require("module"), path = require("path");
+    var fs = require("fs"), module_ = require("module"), path = require("path");
 
     resolveModule = function(server, name, parent) {
       var data = server._node;
@@ -67,7 +67,9 @@
       if (known) {
         return data.modules[name] = known;
       } else {
-        if (path.extname(file) != '.node') server.addFile(file);
+        // If the module was resolved to a file that doesn't exist, then it's a node.js stdlib
+        // module.
+        if (fs.existsSync(file) && path.extname(file) != '.node') server.addFile(file);
         return data.modules[file] = data.modules[name] = new infer.AVal;
       }
     };
