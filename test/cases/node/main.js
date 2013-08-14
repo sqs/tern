@@ -31,6 +31,9 @@ setTimeout(function(){}, 10).ref; //: fn()
 
 require("module");
 
+// don't attempt to handle .node binary modules
+require("./binary.node").binary; //: ?
+
 var mymod = require("mymod");
 
 mymod.foo; //: number
