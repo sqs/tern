@@ -23,7 +23,16 @@ function runTest(options) {
                    out + "\nExpected " + expect);
 
     // Test loading the condensed defs.
-    new tern.Server({defs: [condensed]});
+    var server2 = new tern.Server({
+      defs: [util.ecma5, util.browser, condensed],
+      plugins: options.plugins
+    });
+    server2.flush(function() {
+      var condensed2 = condense.condense(options.include || options.load, null, {sortOutput: true});
+      if (!util.deepEqual(condensed, condensed2))
+        util.failure("condense/" + options.load[0] + ": Mismatch in condense output after loading defs. Got " +
+                     JSON.stringify(condensed2, null, 2).trim() + "\nExpected " + out);
+    });
   });
 }
 
