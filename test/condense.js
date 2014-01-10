@@ -56,6 +56,7 @@ exports.runTests = function(filter) {
   test("double_ref.js");
   test("proto.js");
   test("generic.js");
+  test("recursive_types.js");
 
   test({load: ["node_simple.js"], plugins: {node: true}});
   test({load: ["node_fn_export.js"], plugins: {node: true}});
