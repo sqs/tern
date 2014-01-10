@@ -207,9 +207,8 @@
   function postLoadDef(data) {
     var cx = infer.cx(), interfaces = cx.definitions[data["!name"]]["!requirejs"];
     var data = cx.parent._requireJS;
-    if (interfaces) for (var name in interfaces.props) {
-      interfaces.props[name].propagate(getInterface(name, data));
-    }
+    if (interfaces) for (var name in interfaces.props)
+      interfaces.props[name].propagate(getInterface(name.replace(/`/g, "."), data));
   }
 
   tern.registerPlugin("requirejs", function(server, options) {
