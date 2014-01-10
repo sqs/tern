@@ -1,0 +1,19 @@
+{
+  "!name": "src/core.js",
+  "!define": {
+    "!requirejs": {
+      "src/core": {
+        "fn": {
+          "extend": {
+            "!type": "fn(object: ?) -> !this",
+            "!effects": ["copy !0 !this", "log jQuery.prototype.extend"]
+          }
+        },
+        "extend": {
+          "!type": "fn(object: ?) -> !this",
+          "!effects": ["copy !0 !this", "log jQuery.extend"]
+        }
+      }
+    }
+  }
+}
