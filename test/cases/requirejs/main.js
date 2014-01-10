@@ -13,6 +13,7 @@ requirejs(["foo", "bar!abc", "useexports", "simplifiedcommon"], function(foo, ba
 
   foo; //origin: foo.js
   bar; //origin: bar.js
+  bar.baz; //origin: baz.js
 });
 
 requirejs(["jquery"], function($) {
