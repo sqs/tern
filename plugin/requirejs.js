@@ -116,6 +116,10 @@
     },
   };
 
+  function stripJSExt(f) {
+    return f.replace(/\.js$/, '');
+  }
+
   infer.registerFunction("requireJS", function(_self, args, argNodes) {
     var server = infer.cx().parent, data = server && server._requireJS;
     if (!data || !args.length) return infer.ANull;
@@ -199,8 +203,8 @@
     var rjs = state.roots["!requirejs"] = new infer.Obj(null);
     for (var name in interfaces) {
       var prop = rjs.defProp(name.replace(/\./g, "`"));
-      interfaces[name].propagate(prop);
-      prop.origin = interfaces[name].origin;
+      interfaces[stripJSExt(name)].propagate(prop);
+      prop.origin = interfaces[stripJSExt(name)].origin;
     }
   }
 

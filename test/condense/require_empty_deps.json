@@ -10,5 +10,5 @@
       }
     }
   },
-  "!name": "require_empty_deps"
+  "!name": "require_empty_deps.js"
 }
