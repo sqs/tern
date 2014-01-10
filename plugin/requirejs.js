@@ -205,7 +205,8 @@
     var cx = infer.cx(), interfaces = cx.definitions[data["!name"]]["!requirejs"];
     var data = cx.parent._requireJS;
     if (interfaces) for (var name in interfaces.props) {
-      interfaces.props[name].propagate(getInterface(name, data));
+      var mod = getInterface(name, data);
+      interfaces.props[name].propagate(mod);
     }
   }
 
@@ -219,6 +220,26 @@
 
     server.on("beforeLoad", function(file) {
       this._requireJS.currentFile = file.name;
+    });
+    server.on("afterLoad", function(file) {
+      var iface = getKnownModule(this._requireJS.currentFile, this._requireJS);
+      if (iface) {
+        if (iface.types.length == 2) {
+          var a = iface.types[0], b = iface.types[1];
+          if (a instanceof infer.Obj && b instanceof infer.Obj) {
+            // merge objects
+            b.forAllProps(function(prop, val, local) {
+              if (local) {
+                val.propagate(a.defProp(prop));
+              }
+            });
+
+            // remove 2nd type
+            iface.types.splice(1);
+          }
+        }
+      }
+      this._requireJS.currentFile = null;
     });
     server.on("reset", function() {
       this._requireJS.interfaces = Object.create(null);
