@@ -15,6 +15,10 @@ requirejs(["foo", "bar!abc", "useexports", "simplifiedcommon", "subdir/zap"], fu
   bar; //origin: bar.js
   bar.baz; //origin: baz.js
   zap; //: string
+
+  foo; //origin: foo.js
+  bar; //origin: bar.js
+  bar.baz; //origin: baz.js
 });
 
 requirejs(["jquery"], function($) {
