@@ -75,4 +75,6 @@ exports.runTests = function(filter) {
   test({load: ["node_other_module_type_ref"], include: ["node_other_module_type_ref", "node_export_function_a"], plugins: {node: true}});
 
   test({load: ["angular_simple"], plugins: {angular: true}});
+
+  test({load: ["require_const"], plugins: {requirejs: true}});
 };
