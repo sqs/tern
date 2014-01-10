@@ -24,7 +24,7 @@ function runTest(options) {
     var origins = options.include || options.load;
     var condensed = condense.condense(origins, null, condenseOptions);
     var out = JSON.stringify(condensed, null, 2);
-    var expect = fs.readFileSync(jsonFile(options.load[0]), "utf8").trim();
+    var expect = fs.readFileSync(jsonFile(origins[0]), "utf8").trim();
     if (out != expect)
       return util.failure("condense/" + origins[0] + ": Mismatch in condense output. Got " +
                           out + "\nExpected " + expect);
@@ -52,7 +52,7 @@ exports.runTests = function(filter) {
     if (typeof options == "string") options = {load: [options]};
     options.load = options.load.map(jsFile);
     if (options.include) options.include = options.include.map(jsFile);
-    if (filter && options.load[0].indexOf(filter) == -1) return;
+    if (filter && (options.include || options.load)[0].indexOf(filter) == -1) return;
     util.addTest();
     util.addFile();
     runTest(options);
@@ -77,8 +77,11 @@ exports.runTests = function(filter) {
 
   test({load: ["angular_simple"], plugins: {angular: true}});
 
-  test({load: ["require_const"], plugins: {requirejs: true}});
-  test({load: ["require_setup"], plugins: {requirejs: true}});
-  test({load: ["require_empty_deps"], plugins: {requirejs: true}});
-  test({load: ["require_dep", "require_const"], include: ["require_dep"], plugins: {requirejs: true}});
+  test({load: ["requirejs_const"], plugins: {requirejs: true}});
+  test({load: ["requirejs_setup"], plugins: {requirejs: true}});
+  test({load: ["requirejs_empty_deps"], plugins: {requirejs: true}});
+  // TODO(sqs): if load order is reversed, then
+  // !define.!requirejs.requirejs_dep.a duplicates the definition instead of
+  // referring to !requirejs.requirejs_const.
+  test({load: ["requirejs_const", "requirejs_dep"], include: ["requirejs_dep", "requirejs_const"], plugins: {requirejs: true}});
 };
