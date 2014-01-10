@@ -52,7 +52,7 @@ exports.runTests = function(filter) {
     if (typeof options == "string") options = {load: [options]};
     options.load = options.load.map(jsFile);
     if (options.include) options.include = options.include.map(jsFile);
-    if (filter && options.load[0].indexOf(filter) == -1) return;
+    if (filter && (options.include || options.load)[0].indexOf(filter) == -1) return;
     util.addTest();
     util.addFile();
     runTest(options);

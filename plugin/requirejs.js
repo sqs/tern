@@ -116,10 +116,6 @@
     },
   };
 
-  function stripJSExt(f) {
-    return f.replace(/\.js$/, '');
-  }
-
   infer.registerFunction("requireJS", function(_self, args, argNodes) {
     var server = infer.cx().parent, data = server && server._requireJS;
     if (!data || !args.length) return infer.ANull;
@@ -203,16 +199,17 @@
     var rjs = state.roots["!requirejs"] = new infer.Obj(null);
     for (var name in interfaces) {
       var prop = rjs.defProp(name.replace(/\./g, "`"));
-      interfaces[stripJSExt(name)].propagate(prop);
-      prop.origin = interfaces[stripJSExt(name)].origin;
+      interfaces[name].propagate(prop);
+      prop.origin = interfaces[name].origin;
     }
   }
 
   function postLoadDef(data) {
     var cx = infer.cx(), interfaces = cx.definitions[data["!name"]]["!requirejs"];
     var data = cx.parent._requireJS;
-    if (interfaces) for (var name in interfaces.props)
-      interfaces.props[name].propagate(getInterface(name.replace(/`/g, "."), data));
+    if (interfaces) for (var name in interfaces.props) {
+      interfaces.props[name].propagate(getInterface(name, data));
+    }
   }
 
   tern.registerPlugin("requirejs", function(server, options) {
