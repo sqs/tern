@@ -8,7 +8,7 @@ function jsonFile(name) { return "test/condense/" + name.replace(/\.js$/, ".json
 
 function runTest(options) {
   var server = new tern.Server({
-    defs: [util.ecma5, util.browser],
+    defs: options.defs || [util.ecma5, util.browser],
     plugins: options.plugins
   });
   options.load.forEach(function(file) {
@@ -56,6 +56,7 @@ exports.runTests = function(filter) {
   test("double_ref.js");
   test("proto.js");
   test("generic.js");
+  test({load: ["jquery_extend.js"], defs: [util.ecma5, util.browser, util.jquery], plugins: {jquery: true}});
 
   test({load: ["node_simple.js"], plugins: {node: true}});
   test({load: ["node_fn_export.js"], plugins: {node: true}});
