@@ -1,0 +1,16 @@
+{
+  "!name": "extend_copy_this",
+  "A": {
+    "!type": "fn()",
+    "prototype": {
+      "extend": {
+        "!type": "fn(object: ?) -> !this",
+        "!effects": ["copy !0 !this"]
+      }
+    },
+    "extend": {
+      "!type": "fn(object: ?) -> !this",
+      "!effects": ["copy !0 !this"]
+    }
+  }
+}

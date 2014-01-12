@@ -7,8 +7,9 @@ require("../plugin/node");
 function caseFile(name, ext) { return "test/condense/" + name + "." + (ext || "js"); }
 
 function runTest(options) {
+  var defs = options.defs || [util.ecma5, util.browser];
   var server = new tern.Server({
-    defs: [util.ecma5, util.browser],
+    defs: defs,
     plugins: options.plugins
   });
   options.load.forEach(function(file) {
@@ -23,8 +24,9 @@ function runTest(options) {
                           out + "\nExpected " + expect);
 
     // Test loading the condensed defs.
+    defs.push(condensed);
     var server2 = new tern.Server({
-      defs: [util.ecma5, util.browser, condensed],
+      defs: defs,
       plugins: options.plugins
     });
     server2.flush(function() {
@@ -55,6 +57,7 @@ exports.runTests = function(filter) {
   test("double_ref");
   test("proto");
   test("generic");
+  test({load: ["copy_this_effect"], defs: [util.ecma5, util.browser, util.extend_copy_this]});
 
   test({load: ["node_simple"], plugins: {node: true}});
   test({load: ["node_fn_export"], plugins: {node: true}});
