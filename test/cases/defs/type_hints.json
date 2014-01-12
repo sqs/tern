@@ -15,10 +15,5 @@
       "!hint": true,
       "!type": "fn(number) -> string"
     }
-  },
-  "extend": {
-    "!hint": true,
-    "!type": "fn(target: ?, source: ?) -> !0",
-    "!effects": ["copy !1 !0"]
   }
 }
