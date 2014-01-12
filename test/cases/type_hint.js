@@ -17,13 +17,3 @@ o.c; //origin: type_hint.js
 o; //:: {c: fn(number) -> string}
 o; //loc: 13,4
 o; //origin: type_hint.js
-
-function extend(a, b) {
-  for (var k in b) if (b.hasOwnProperty(k)) a[k] = b[k];
-}
-extend; //: fn(target: ?, source: ?)
-extend; //loc: 21,9
-extend; //origin: type_hint.js
-var a = {};
-extend(a, {b: 1});
-a; //:: {b: number}
