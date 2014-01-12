@@ -1,0 +1,18 @@
+{
+  "!name": "jquery_extend",
+  "A": {
+    "!span": "9[0:9]-10[0:10]",
+    "!type": "fn()",
+    "fn": "A.prototype",
+    "foo": {
+      "!span": "64[5:7]-98[7:3]",
+      "!type": "fn() -> string"
+    },
+    "prototype": {
+      "foo": {
+        "!span": "133[11:7]-165[13:3]",
+        "!type": "fn() -> number"
+      }
+    }
+  }
+}

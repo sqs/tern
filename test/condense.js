@@ -8,7 +8,7 @@ function caseFile(name, ext) { return "test/condense/" + name + "." + (ext || "j
 
 function runTest(options) {
   var server = new tern.Server({
-    defs: [util.ecma5, util.browser],
+    defs: options.defs || [util.ecma5, util.browser],
     plugins: options.plugins
   });
   options.load.forEach(function(file) {
@@ -54,6 +54,7 @@ exports.runTests = function(filter) {
   test("ref_in_type");
   test("double_ref");
   test("proto");
+  test({load: ["jquery_extend"], defs: [util.ecma5, util.browser, util.jquery], plugins: {jquery: true}});
   test("generic");
 
   test({load: ["node_simple"], plugins: {node: true}});
