@@ -7,8 +7,9 @@ require("../plugin/node");
 function jsonFile(name) { return "test/condense/" + name.replace(/\.js$/, ".json"); }
 
 function runTest(options) {
+  var defs = options.defs || [util.ecma5, util.browser];
   var server = new tern.Server({
-    defs: [util.ecma5, util.browser],
+    defs: defs,
     plugins: options.plugins
   });
   options.load.forEach(function(file) {
@@ -24,8 +25,9 @@ function runTest(options) {
                           out + "\nExpected " + expect);
 
     // Test loading the condensed defs.
+    defs.push(condensed);
     var server2 = new tern.Server({
-      defs: [util.ecma5, util.browser, condensed],
+      defs: defs,
       plugins: options.plugins
     });
     server2.flush(function() {
@@ -69,4 +71,5 @@ exports.runTests = function(filter) {
   // !define.!requirejs.requirejs_dep.a duplicates the definition instead of
   // referring to !requirejs.requirejs_const.
   test({load: ["requirejs_const.js", "requirejs_dep.js"], include: ["requirejs_dep.js", "requirejs_const.js"], plugins: {requirejs: true}});
+  test({load: ["src/core.js", "requirejs_copy_this_effect.js"], include: ["requirejs_copy_this_effect.js", "src/core.js"], plugins: {requirejs: true}, defs: [util.jquery_requirejs_extend]});
 };

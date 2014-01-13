@@ -1,0 +1,23 @@
+{
+  "!define": {
+    "!requirejs": {
+      "src/core": {
+        "extend": "fn(object: ?) -> !this",
+        "fn": {
+          "!span": "87[2:33]-106[2:52]",
+          "F0": {
+            "!span": "88[2:34]-90[2:36]",
+            "!type": "fn()"
+          },
+          "F1": {
+            "!span": "54[1:19]-68[1:33]",
+            "!type": "fn()"
+          },
+          "extend": "fn(object: ?) -> !this"
+        },
+        "prototype": "!requirejs.src/core.fn"
+      }
+    }
+  },
+  "!name": "requirejs_copy_this_effect.js"
+}
