@@ -78,6 +78,7 @@ exports.runTests = function(filter) {
   test({load: ["angular_simple"], plugins: {angular: true}});
 
   test({load: ["requirejs_const"], plugins: {requirejs: true}});
+  test({load: ["requirejs_primitive"], plugins: {requirejs: true}});
   test({load: ["requirejs_setup"], plugins: {requirejs: true}});
   test({load: ["requirejs_empty_deps"], plugins: {requirejs: true}});
   // TODO(sqs): if load order is reversed, then
