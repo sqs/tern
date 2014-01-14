@@ -20,8 +20,9 @@ function runTest(options) {
     server.addFile(file);
   });
   server.flush(function() {
+    var condenseOptions = options.condenseOptions || {sortOutput: true};
     var origins = options.include || options.load;
-    var condensed = condense.condense(origins, null, {sortOutput: true});
+    var condensed = condense.condense(origins, null, condenseOptions);
     var out = JSON.stringify(condensed, null, 2);
     var expect = fs.readFileSync(jsonFile(origins[0]), "utf8").trim();
     if (out != expect)
@@ -34,7 +35,7 @@ function runTest(options) {
       plugins: options.plugins
     });
     server2.flush(function() {
-      var condensed = condense.condense(origins, null, {sortOutput: true});
+      var condensed = condense.condense(origins, null, condenseOptions);
       var out = JSON.stringify(condensed, null, 2);
       if (out != expect)
         util.failure("condense/" + origins[0] + ": Mismatch in condense output after loading defs. Got " +
