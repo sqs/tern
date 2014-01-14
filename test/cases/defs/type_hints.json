@@ -1,0 +1,24 @@
+{
+  "!name": "type_hints",
+  "n": {
+    "!hint": true,
+    "!type": "number"
+  },
+  "F": {
+    "!hint": true,
+    "!type": "fn(string) -> number",
+    "!doc": "doc for F"
+  },
+  "o": {
+    "!hint": true,
+    "c": {
+      "!hint": true,
+      "!type": "fn(number) -> string"
+    }
+  },
+  "extend": {
+    "!hint": true,
+    "!type": "fn(target: ?, source: ?) -> !0",
+    "!effects": ["copy !1 !0"]
+  }
+}
