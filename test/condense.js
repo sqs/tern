@@ -15,7 +15,8 @@ function runTest(options) {
     server.addFile(file, fs.readFileSync(caseFile(file), "utf8"));
   });
   server.flush(function() {
-    var condensed = condense.condense(options.include || options.load, null, {sortOutput: true});
+    var condenseOptions = options.condenseOptions || {sortOutput: true};
+    var condensed = condense.condense(options.include || options.load, null, condenseOptions);
     var out = JSON.stringify(condensed, null, 2);
     var expect = fs.readFileSync(caseFile(options.load[0], "json"), "utf8").trim();
     if (out != expect)
@@ -28,7 +29,7 @@ function runTest(options) {
       plugins: options.plugins
     });
     server2.flush(function() {
-      var condensed = condense.condense(options.include || options.load, null, {sortOutput: true});
+      var condensed = condense.condense(options.include || options.load, null, condenseOptions);
       var out = JSON.stringify(condensed, null, 2);
       if (out != expect)
         util.failure("condense/" + options.load[0] + ": Mismatch in condense output after loading defs. Got " +
@@ -55,6 +56,8 @@ exports.runTests = function(filter) {
   test("double_ref");
   test("proto");
   test("generic");
+
+  test({load: ["flat"], condenseOptions: {flat: true, sortOutput: true}});
 
   test({load: ["node_simple"], plugins: {node: true}});
   test({load: ["node_fn_export"], plugins: {node: true}});
