@@ -59,13 +59,16 @@
       try {
         var file = module_._resolveFilename(name, currentModule);
       } catch(e) { return infer.ANull; }
+      var exists = fs.existsSync(file);
+      if (exists) file = path.relative(server.options.projectDir, file);;
+
       var known = data.modules[file];
       if (known) {
         return data.modules[name] = known;
       } else {
         // If the module resolves to a file that doesn't exist, then it is likely a node.js stdlib
         // module that is not predefined below.
-        if (fs.existsSync(file) && /^(\.js)?$/.test(path.extname(file))) server.addFile(file);
+        if (exists && /^(\.js)?$/.test(path.extname(file))) server.addFile(file);
         return data.modules[file] = data.modules[name] = new infer.AVal;
       }
     };
