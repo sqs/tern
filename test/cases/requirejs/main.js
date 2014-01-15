@@ -10,6 +10,9 @@ requirejs(["foo", "bar!abc", "useexports", "simplifiedcommon"], function(foo, ba
   useexports.hello; //: bool
   simplified.hello; //: string
   simplified.func; //: fn() -> bool
+
+  foo; //origin: foo.js
+  bar; //origin: bar.js
 });
 
 requirejs(["jquery"], function($) {
