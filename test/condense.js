@@ -30,6 +30,7 @@ function runTest(options) {
       return util.failure("condense/" + origins[0] + ": Mismatch in condense output. Got " +
                           out + "\nExpected " + expect);
 
+    if (options.skipReload) return;
     // Test loading the condensed defs.
     defs.push(condensed);
     var server2 = new tern.Server({
@@ -90,5 +91,5 @@ exports.runTests = function(filter) {
 
   test("recursive");
 
-  test({load: ["src/core", "requirejs_copy_this_effect"], include: ["requirejs_copy_this_effect", "src/core"], plugins: {requirejs: true}, defs: [util.jquery_requirejs_extend]});
+  test({load: ["src/core", "requirejs_copy_this_effect"], include: ["requirejs_copy_this_effect", "src/core"], plugins: {requirejs: true}, defs: [util.jquery_requirejs_extend], skipReload: true});
 };
