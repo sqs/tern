@@ -30,6 +30,7 @@ function runTest(options) {
       return util.failure("condense/" + origins[0] + ": Mismatch in condense output. Got " +
                           out + "\nExpected " + expect);
 
+    if (options.skipReload) return;
     // Test loading the condensed defs.
     defs.push(condensed);
     var server2 = new tern.Server({
@@ -71,7 +72,7 @@ exports.runTests = function(filter) {
   test("proto");
   test("generic");
 
-  test({load: ["flat"], condenseOptions: {flat: true, sortOutput: true}});
+  test({load: ["flat"], condenseOptions: {flat: true, sortOutput: true}, skipReload: true});
 
   test({load: ["node_simple"], plugins: {node: true}});
   test({load: ["node_fn_export"], plugins: {node: true}});
@@ -87,5 +88,5 @@ exports.runTests = function(filter) {
   // !define.!requirejs.requirejs_dep.a duplicates the definition instead of
   // referring to !requirejs.requirejs_const.
   test({load: ["requirejs_const", "requirejs_dep"], include: ["requirejs_dep", "requirejs_const"], plugins: {requirejs: true}});
-  test({load: ["src/core", "requirejs_copy_this_effect"], include: ["requirejs_copy_this_effect", "src/core"], plugins: {requirejs: true}, defs: [util.jquery_requirejs_extend]});
+  test({load: ["src/core", "requirejs_copy_this_effect"], include: ["requirejs_copy_this_effect", "src/core"], plugins: {requirejs: true}, defs: [util.jquery_requirejs_extend], skipReload: true});
 };
