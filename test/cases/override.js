@@ -10,6 +10,9 @@ var D = {e: function() {}};
 D.e(1); //: number
 D.e(true); //: bool
 
+var b = D.e(true);
+b; //: bool
+
 function() {
   var D = {e: "asdf"};
   D.e(function(){}); //: fn()
@@ -18,3 +21,6 @@ function() {
 D = 7;
 D.e = 5;
 D.e("a"); //: string
+
+var s = D.e("a");
+s; //: string
