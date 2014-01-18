@@ -15,16 +15,21 @@
             if (!spec.def["!name"]) spec.def["!name"] = "override";
 
             function override(av, scope) {
-              infer.def.load(spec.def, scope);
+              var tmpScope = new infer.Scope();
+              infer.def.load(spec.def, tmpScope);
+              tmpScope.forAllProps(function(prop, val, local) {
+                if (local) {
+                  scope.defVar(prop).addType(tmpScope.getProp(prop).getType());
+                }
+              });
             }
 
             var visitors = {
               Identifier: {
                 Identifier: function(node, scope) {
                   if (node.name == spec.node.name) {
-                    var av = scope.defVar(node.name);
-                    av.types = [];
-                    override(av, scope)
+                    if (!spec.add) delete scope.props[node.name];
+                    override(scope.defVar(node.name), scope);
                   }
                 }
               },
@@ -32,17 +37,10 @@
                 MemberExpression: function(node, scope) {
                   if (node.object.type == spec.node.object.type && node.object.name == spec.node.object.name &&
                       (node.property.name || node.property.value) == spec.node.property) {
-                    delete scope.props[spec.node.object.name];
-                    var obj = scope.defVar(spec.node.object.name);
-                    var typ = obj.getType(false);
-                    if (!typ) {
-                      typ = new infer.Obj(null);
-                      obj.types = [];
-                      obj.addType(typ);
+                    if (!spec.add) {
+                      delete scope.props[node.object.name];
                     }
-                    var av = obj.getProp(spec.node.property);
-                    override(av, scope);
-
+                    override(null, scope);
                   }
                 }
               }
