@@ -1,10 +1,10 @@
 {
-  "!name": "src/core.js",
+  "!name": "requirejs_extend_this",
   "!define": {
     "!requirejs": {
-      "src/core": {
+      "requirejs_extend_this": {
         "!backPropagate": true,
-        "!type": "fn()",
+        "!type": "fn() -> string",
         "extend": {
           "!type": "fn(obj: ?) -> !this",
           "!effects": ["copy !0 !this", "log extend"]

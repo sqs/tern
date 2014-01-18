@@ -23,3 +23,8 @@ process.on("exit", function() {
   console.log("Ran " + tests + " tests from " + files + " files.");
   console.log(failed ? failed + " failures!" : "All passed.");
 });
+
+process.on('uncaughtException', function(err) {
+  console.log(err.stack);
+  throw err;
+});

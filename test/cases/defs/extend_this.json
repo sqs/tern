@@ -1,0 +1,11 @@
+{
+  "!name": "extend_this",
+  "A": {
+    "!hint": true,
+    "!type": "fn()",
+    "extend": {
+      "!type": "fn(obj: ?) -> !this",
+      "!effects": ["copy !0 !this"]
+    }
+  }
+}

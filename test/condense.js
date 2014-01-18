@@ -89,4 +89,7 @@ exports.runTests = function(filter) {
   // referring to !requirejs.requirejs_const.
   test({load: ["requirejs_const", "requirejs_dep"], include: ["requirejs_dep", "requirejs_const"], plugins: {requirejs: true}});
   test({load: ["src/core", "requirejs_copy_this_effect"], include: ["requirejs_copy_this_effect", "src/core"], plugins: {requirejs: true}, defs: [util.jquery_requirejs_extend], skipReload: true});
+
+  var c = JSON.parse(fs.readFileSync(util.resolve("test/cases/defs/requirejs_extend_this.json")));
+  test({load: ["requirejs_extend_this"], plugins: {requirejs: true}, defs: [c], skipReload: true});
 };

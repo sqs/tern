@@ -1,0 +1,12 @@
+{
+  "!name": "requirejs_type_hint",
+  "!define": {
+    "!requirejs": {
+      "requirejs_type_hint": {
+        "!hint": true,
+        "!type": "fn() -> number",
+        "!backPropagate": true
+      }
+    }
+  }
+}
