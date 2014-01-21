@@ -81,6 +81,18 @@
     };
   })();
 
+  function makeConstants() {
+    // Transparently add all seen properties on the "constants" module as numbers.
+    var underlying = new infer.Obj(null), proxy = new infer.Obj(underlying, "constants");
+    proxy.hasProp = function(prop) {
+      if (!underlying.hasProp(prop)) {
+        underlying.defProp(prop).addType(infer.cx().num);
+      }
+      return underlying.hasProp(prop);
+    }
+    return proxy;
+  }
+
   function resolveProjectPath(server, pth) {
     return resolvePath(server.options.projectDir + "/", pth.replace(/\\/g, "/"));
   }
@@ -91,6 +103,8 @@
     var cx = infer.cx(), server = cx.parent, data = server._node, name = argNodes[0].value;
     var locals = cx.definitions.node;
     if (locals[name] && /^[a-z_]*$/.test(name)) return locals[name];
+
+    if (name == "constants") return data.modules[name] || (data.modules[name] = makeConstants());
 
     if (name in data.modules) return data.modules[name];
 
