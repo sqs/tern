@@ -65,7 +65,7 @@ exports.runTests = function(filter) {
     util.addFile();
     var fname = name, context = caseDir;
     if (fs.statSync(path.resolve(context, name)).isDirectory()) {
-      if (name == "node_modules" || name == "defs") return;
+      if (name == "node_modules" || name == "defs" || name[0] == "_") return;
       context = path.join(context, name);
       fname = "main.js";
     }
