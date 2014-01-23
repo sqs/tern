@@ -52,13 +52,20 @@
           data.options.load && !new RegExp(data.options.load).test(name))
         return infer.ANull;
 
-      var currentModule = {
-        id: parent,
-        paths: module_._nodeModulePaths(path.dirname(parent))
-      };
-      try {
-        var file = module_._resolveFilename(name, currentModule);
-      } catch(e) { return infer.ANull; }
+      var file;
+      var coreModuleFile = data.options.coreModulesDir && path.resolve(data.server.options.projectDir || '.', path.join(data.options.coreModulesDir, name + '.js'));
+      if (data.options.coreModulesDir && fs.existsSync(coreModuleFile)) {
+        file = coreModuleFile;
+      } else {
+        var currentModule = {
+          id: parent,
+          paths: module_._nodeModulePaths(path.dirname(parent))
+        };
+        try {
+          file = module_._resolveFilename(name, currentModule);
+        } catch(e) { return infer.ANull; }
+      }
+
       var known = data.modules[file];
       if (known) {
         return data.modules[name] = known;
@@ -136,7 +143,7 @@
       this._node.modules = Object.create(null);
     });
 
-    return {defs: defs,
+    return {defs: options.coreModulesDir && globalDefs || allDefs,
             passes: {preCondenseReach: preCondenseReach,
                      postLoadDef: postLoadDef}};
   });
@@ -168,7 +175,7 @@
     }
   });
 
-  var defs = {
+  var globalDefs = {
     "!name": "node",
     "!define": {
       require: {
@@ -229,6 +236,301 @@
           }
         }
       },
+    timers: {
+      setTimeout: {
+        "!type": "fn(callback: fn(), ms: number) -> timers.Timer",
+        "!url": "http://nodejs.org/api/globals.html#globals_settimeout_cb_ms",
+        "!doc": "Run callback cb after at least ms milliseconds. The actual delay depends on external factors like OS timer granularity and system load."
+      },
+      clearTimeout: {
+        "!type": "fn(id: timers.Timer)",
+        "!url": "http://nodejs.org/api/globals.html#globals_cleartimeout_t",
+        "!doc": "Stop a timer that was previously created with setTimeout(). The callback will not execute."
+      },
+      setInterval: {
+        "!type": "fn(callback: fn(), ms: number) -> timers.Timer",
+        "!url": "http://nodejs.org/api/globals.html#globals_setinterval_cb_ms",
+        "!doc": "Run callback cb repeatedly every ms milliseconds. Note that the actual interval may vary, depending on external factors like OS timer granularity and system load. It's never less than ms but it may be longer."
+      },
+      clearInterval: {
+        "!type": "fn(id: timers.Timer)",
+        "!url": "http://nodejs.org/api/globals.html#globals_clearinterval_t",
+        "!doc": "Stop a timer that was previously created with setInterval(). The callback will not execute."
+      },
+      setImmediate: {
+        "!type": "fn(callback: fn(), ms: number) -> timers.Timer",
+        "!url": "http://nodejs.org/api/timers.html#timers_setimmediate_callback_arg",
+        "!doc": "Schedule the 'immediate' execution of callback after I/O events callbacks."
+      },
+      clearImmediate: {
+        "!type": "fn(id: timers.Timer)",
+        "!url": "http://nodejs.org/api/timers.html#timers_clearimmediate_immediateid",
+        "!doc": "Stops an immediate from triggering."
+      },
+      Timer: {
+        unref: {
+          "!type": "fn()",
+          "!url": "http://nodejs.org/api/timers.html#timers_unref",
+          "!doc": "Create a timer that is active but if it is the only item left in the event loop won't keep the program running."
+        },
+        ref: {
+          "!type": "fn()",
+          "!url": "http://nodejs.org/api/timers.html#timers_unref",
+          "!doc": "Explicitly request the timer hold the program open (cancel the effect of 'unref')."
+        }
+      }
+    },
+    },
+    global: {
+      "!type": "<top>",
+      "!url": "http://nodejs.org/api/globals.html#globals_global",
+      "!doc": "In browsers, the top-level scope is the global scope. That means that in browsers if you're in the global scope var something will define a global variable. In Node this is different. The top-level scope is not the global scope; var something inside a Node module will be local to that module."
+    },
+    console: {
+      log: {
+        "!type": "fn(text: string)",
+        "!url": "http://nodejs.org/api/stdio.html#stdio_console_log_data",
+        "!doc": "Prints to stdout with newline. This function can take multiple arguments in a printf()-like way."
+      },
+      info: {
+        "!type": "fn(text: string)",
+        "!url": "http://nodejs.org/api/stdio.html#stdio_console_info_data",
+        "!doc": "Same as console.log."
+      },
+      error: {
+        "!type": "fn(text: string)",
+        "!url": "http://nodejs.org/api/stdio.html#stdio_console_error_data",
+        "!doc": "Same as console.log but prints to stderr."
+      },
+      warn: {
+        "!type": "fn(text: string)",
+        "!url": "http://nodejs.org/api/stdio.html#stdio_console_warn_data",
+        "!doc": "Same as console.error."
+      },
+      dir: {
+        "!type": "fn(obj: ?)",
+        "!url": "http://nodejs.org/api/stdio.html#stdio_console_dir_obj",
+        "!doc": "Uses util.inspect on obj and prints resulting string to stdout."
+      },
+      time: {
+        "!type": "fn(label: string)",
+        "!url": "http://nodejs.org/api/stdio.html#stdio_console_time_label",
+        "!doc": "Mark a time."
+      },
+      timeEnd: {
+        "!type": "fn(label: string)",
+        "!url": "http://nodejs.org/api/stdio.html#stdio_console_timeend_label",
+        "!doc": "Finish timer, record output."
+      },
+      trace: {
+        "!type": "fn(label: string)",
+        "!url": "http://nodejs.org/api/stdio.html#stdio_console_trace_label",
+        "!doc": "Print a stack trace to stderr of the current position."
+      },
+      assert: {
+        "!type": "fn(expression: bool)",
+        "!url": "http://nodejs.org/api/stdio.html#stdio_console_assert_expression_message",
+        "!doc": "Same as assert.ok() where if the expression evaluates as false throw an AssertionError with message."
+      },
+      "!url": "http://nodejs.org/api/globals.html#globals_console",
+      "!doc": "Used to print to stdout and stderr."
+    },
+    module: {
+      "!type": "+Module",
+      "!url": "http://nodejs.org/api/globals.html#globals_module",
+      "!doc": "A reference to the current module. In particular module.exports is the same as the exports object. module isn't actually a global but rather local to each module."
+    },
+    process: {
+      stdout: {
+        "!type": "+stream.Writable",
+        "!url": "http://nodejs.org/api/process.html#process_process_stdout",
+        "!doc": "A Writable Stream to stdout."
+      },
+      stderr: {
+        "!type": "+stream.Writable",
+        "!url": "http://nodejs.org/api/process.html#process_process_stderr",
+        "!doc": "A writable stream to stderr."
+      },
+      stdin: {
+        "!type": "+stream.Readable",
+        "!url": "http://nodejs.org/api/process.html#process_process_stdin",
+        "!doc": "A Readable Stream for stdin. The stdin stream is paused by default, so one must call process.stdin.resume() to read from it."
+      },
+      argv: {
+        "!type": "[string]",
+        "!url": "http://nodejs.org/api/process.html#process_process_argv",
+        "!doc": "An array containing the command line arguments. The first element will be 'node', the second element will be the name of the JavaScript file. The next elements will be any additional command line arguments."
+      },
+      execPath: {
+        "!type": "string",
+        "!url": "http://nodejs.org/api/process.html#process_process_execpath",
+        "!doc": "This is the absolute pathname of the executable that started the process."
+      },
+      abort: {
+        "!type": "fn()",
+        "!url": "http://nodejs.org/api/process.html#process_process_abort",
+        "!doc": "This causes node to emit an abort. This will cause node to exit and generate a core file."
+      },
+      chdir: {
+        "!type": "fn(directory: string)",
+        "!url": "http://nodejs.org/api/process.html#process_process_chdir_directory",
+        "!doc": "Changes the current working directory of the process or throws an exception if that fails."
+      },
+      cwd: {
+        "!type": "fn()",
+        "!url": "http://nodejs.org/api/process.html#process_process_cwd",
+        "!doc": "Returns the current working directory of the process."
+      },
+      env: {
+        "!url": "http://nodejs.org/api/process.html#process_process_env",
+        "!doc": "An object containing the user environment."
+      },
+      exit: {
+        "!type": "fn(code?: number)",
+        "!url": "http://nodejs.org/api/process.html#process_process_exit_code",
+        "!doc": "Ends the process with the specified code. If omitted, exit uses the 'success' code 0."
+      },
+      getgid: {
+        "!type": "fn() -> number",
+        "!url": "http://nodejs.org/api/process.html#process_process_getgid",
+        "!doc": "Gets the group identity of the process. This is the numerical group id, not the group name."
+      },
+      setgid: {
+        "!type": "fn(id: number)",
+        "!url": "http://nodejs.org/api/process.html#process_process_setgid_id",
+        "!doc": "Sets the group identity of the process. This accepts either a numerical ID or a groupname string. If a groupname is specified, this method blocks while resolving it to a numerical ID."
+      },
+      getuid: {
+        "!type": "fn() -> number",
+        "!url": "http://nodejs.org/api/process.html#process_process_getuid",
+        "!doc": "Gets the user identity of the process. This is the numerical userid, not the username."
+      },
+      setuid: {
+        "!type": "fn(id: number)",
+        "!url": "http://nodejs.org/api/process.html#process_process_setuid_id",
+        "!doc": "Sets the user identity of the process. This accepts either a numerical ID or a username string. If a username is specified, this method blocks while resolving it to a numerical ID."
+      },
+      version: {
+        "!type": "string",
+        "!url": "http://nodejs.org/api/process.html#process_process_version",
+        "!doc": "A compiled-in property that exposes NODE_VERSION."
+      },
+      versions: {
+        http_parser: "string",
+        node: "string",
+        v8: "string",
+        ares: "string",
+        uv: "string",
+        zlib: "string",
+        openssl: "string",
+        "!url": "http://nodejs.org/api/process.html#process_process_versions",
+        "!doc": "A property exposing version strings of node and its dependencies."
+      },
+      config: {
+        target_defaults: {
+          cflags: "[?]",
+          default_configuration: "string",
+          defines: "[string]",
+          include_dirs: "[string]",
+          libraries: "[string]"
+        },
+        variables: {
+          clang: "number",
+          host_arch: "string",
+          node_install_npm: "bool",
+          node_install_waf: "bool",
+          node_prefix: "string",
+          node_shared_openssl: "bool",
+          node_shared_v8: "bool",
+          node_shared_zlib: "bool",
+          node_use_dtrace: "bool",
+          node_use_etw: "bool",
+          node_use_openssl: "bool",
+          target_arch: "string",
+          v8_no_strict_aliasing: "number",
+          v8_use_snapshot: "bool",
+          visibility: "string"
+        },
+        "!url": "http://nodejs.org/api/process.html#process_process_config",
+        "!doc": "An Object containing the JavaScript representation of the configure options that were used to compile the current node executable. This is the same as the \"config.gypi\" file that was produced when running the ./configure script."
+      },
+      kill: {
+        "!type": "fn(pid: number, signal?: string)",
+        "!url": "http://nodejs.org/api/process.html#process_process_kill_pid_signal",
+        "!doc": "Send a signal to a process. pid is the process id and signal is the string describing the signal to send. Signal names are strings like 'SIGINT' or 'SIGUSR1'. If omitted, the signal will be 'SIGTERM'."
+      },
+      pid: {
+        "!type": "number",
+        "!url": "http://nodejs.org/api/process.html#process_process_pid",
+        "!doc": "The PID of the process."
+      },
+      title: {
+        "!type": "string",
+        "!url": "http://nodejs.org/api/process.html#process_process_title",
+        "!doc": "Getter/setter to set what is displayed in 'ps'."
+      },
+      arch: {
+        "!type": "string",
+        "!url": "http://nodejs.org/api/process.html#process_process_arch",
+        "!doc": "What processor architecture you're running on: 'arm', 'ia32', or 'x64'."
+      },
+      platform: {
+        "!type": "string",
+        "!url": "http://nodejs.org/api/process.html#process_process_platform",
+        "!doc": "What platform you're running on: 'darwin', 'freebsd', 'linux', 'sunos' or 'win32'"
+      },
+      memoryUsage: {
+        "!type": "fn() -> process.memoryUsage.type",
+        "!url": "http://nodejs.org/api/process.html#process_process_memoryusage",
+        "!doc": "Returns an object describing the memory usage of the Node process measured in bytes."
+      },
+      nextTick: {
+        "!type": "fn(callback: fn())",
+        "!url": "http://nodejs.org/api/process.html#process_process_nexttick_callback",
+        "!doc": "On the next loop around the event loop call this callback. This is not a simple alias to setTimeout(fn, 0), it's much more efficient. It typically runs before any other I/O events fire, but there are some exceptions."
+      },
+      maxTickDepth: {
+        "!type": "number",
+        "!url": "http://nodejs.org/api/process.html#process_process_maxtickdepth",
+        "!doc": "The maximum depth of nextTick-calling nextTick-callbacks that will be evaluated before allowing other forms of I/O to occur."
+      },
+      umask: {
+        "!type": "fn(mask?: number) -> number",
+        "!url": "http://nodejs.org/api/process.html#process_process_umask_mask",
+        "!doc": "Sets or reads the process's file mode creation mask. Child processes inherit the mask from the parent process. Returns the old mask if mask argument is given, otherwise returns the current mask."
+      },
+      uptime: {
+        "!type": "fn() -> number",
+        "!url": "http://nodejs.org/api/process.html#process_process_uptime",
+        "!doc": "Number of seconds Node has been running."
+      },
+      hrtime: {
+        "!type": "fn() -> [number]",
+        "!url": "http://nodejs.org/api/process.html#process_process_hrtime",
+        "!doc": "Returns the current high-resolution real time in a [seconds, nanoseconds] tuple Array. It is relative to an arbitrary time in the past. It is not related to the time of day and therefore not subject to clock drift. The primary use is for measuring performance between intervals."
+      },
+      "!url": "http://nodejs.org/api/globals.html#globals_process",
+      "!doc": "The process object."
+    },
+    setTimeout: "timers.setTimeout",
+    clearTimeout: "timers.clearTimeout",
+    setInterval: "timers.setInterval",
+    clearInterval: "timers.clearInterval",
+    __filename: {
+      "!type": "string",
+      "!url": "http://nodejs.org/api/globals.html#globals_filename",
+      "!doc": "The filename of the code being executed. This is the resolved absolute path of this code file. For a main program this is not necessarily the same filename used in the command line. The value inside a module is the path to that module file."
+    },
+    __dirname: {
+      "!type": "string",
+      "!url": "http://nodejs.org/api/globals.html#globals_dirname",
+      "!doc": "The name of the directory that the currently executing script resides in."
+    }
+  };
+
+  var allDefs = {
+    "!name": "node",
+    "!define": {
       events: {
         EventEmitter: {
           prototype: {
@@ -2512,295 +2814,6 @@
         SlowBuffer: "Buffer"
       },
       module: {},
-      timers: {
-        setTimeout: {
-          "!type": "fn(callback: fn(), ms: number) -> timers.Timer",
-          "!url": "http://nodejs.org/api/globals.html#globals_settimeout_cb_ms",
-          "!doc": "Run callback cb after at least ms milliseconds. The actual delay depends on external factors like OS timer granularity and system load."
-        },
-        clearTimeout: {
-          "!type": "fn(id: timers.Timer)",
-          "!url": "http://nodejs.org/api/globals.html#globals_cleartimeout_t",
-          "!doc": "Stop a timer that was previously created with setTimeout(). The callback will not execute."
-        },
-        setInterval: {
-          "!type": "fn(callback: fn(), ms: number) -> timers.Timer",
-          "!url": "http://nodejs.org/api/globals.html#globals_setinterval_cb_ms",
-          "!doc": "Run callback cb repeatedly every ms milliseconds. Note that the actual interval may vary, depending on external factors like OS timer granularity and system load. It's never less than ms but it may be longer."
-        },
-        clearInterval: {
-          "!type": "fn(id: timers.Timer)",
-          "!url": "http://nodejs.org/api/globals.html#globals_clearinterval_t",
-          "!doc": "Stop a timer that was previously created with setInterval(). The callback will not execute."
-        },
-        setImmediate: {
-          "!type": "fn(callback: fn(), ms: number) -> timers.Timer",
-          "!url": "http://nodejs.org/api/timers.html#timers_setimmediate_callback_arg",
-          "!doc": "Schedule the 'immediate' execution of callback after I/O events callbacks."
-        },
-        clearImmediate: {
-          "!type": "fn(id: timers.Timer)",
-          "!url": "http://nodejs.org/api/timers.html#timers_clearimmediate_immediateid",
-          "!doc": "Stops an immediate from triggering."
-        },
-        Timer: {
-          unref: {
-            "!type": "fn()",
-            "!url": "http://nodejs.org/api/timers.html#timers_unref",
-            "!doc": "Create a timer that is active but if it is the only item left in the event loop won't keep the program running."
-          },
-          ref: {
-            "!type": "fn()",
-            "!url": "http://nodejs.org/api/timers.html#timers_unref",
-            "!doc": "Explicitly request the timer hold the program open (cancel the effect of 'unref')."
-          }
-        }
-      }
-    },
-    process: {
-      stdout: {
-        "!type": "+stream.Writable",
-        "!url": "http://nodejs.org/api/process.html#process_process_stdout",
-        "!doc": "A Writable Stream to stdout."
-      },
-      stderr: {
-        "!type": "+stream.Writable",
-        "!url": "http://nodejs.org/api/process.html#process_process_stderr",
-        "!doc": "A writable stream to stderr."
-      },
-      stdin: {
-        "!type": "+stream.Readable",
-        "!url": "http://nodejs.org/api/process.html#process_process_stdin",
-        "!doc": "A Readable Stream for stdin. The stdin stream is paused by default, so one must call process.stdin.resume() to read from it."
-      },
-      argv: {
-        "!type": "[string]",
-        "!url": "http://nodejs.org/api/process.html#process_process_argv",
-        "!doc": "An array containing the command line arguments. The first element will be 'node', the second element will be the name of the JavaScript file. The next elements will be any additional command line arguments."
-      },
-      execPath: {
-        "!type": "string",
-        "!url": "http://nodejs.org/api/process.html#process_process_execpath",
-        "!doc": "This is the absolute pathname of the executable that started the process."
-      },
-      abort: {
-        "!type": "fn()",
-        "!url": "http://nodejs.org/api/process.html#process_process_abort",
-        "!doc": "This causes node to emit an abort. This will cause node to exit and generate a core file."
-      },
-      chdir: {
-        "!type": "fn(directory: string)",
-        "!url": "http://nodejs.org/api/process.html#process_process_chdir_directory",
-        "!doc": "Changes the current working directory of the process or throws an exception if that fails."
-      },
-      cwd: {
-        "!type": "fn()",
-        "!url": "http://nodejs.org/api/process.html#process_process_cwd",
-        "!doc": "Returns the current working directory of the process."
-      },
-      env: {
-        "!url": "http://nodejs.org/api/process.html#process_process_env",
-        "!doc": "An object containing the user environment."
-      },
-      exit: {
-        "!type": "fn(code?: number)",
-        "!url": "http://nodejs.org/api/process.html#process_process_exit_code",
-        "!doc": "Ends the process with the specified code. If omitted, exit uses the 'success' code 0."
-      },
-      getgid: {
-        "!type": "fn() -> number",
-        "!url": "http://nodejs.org/api/process.html#process_process_getgid",
-        "!doc": "Gets the group identity of the process. This is the numerical group id, not the group name."
-      },
-      setgid: {
-        "!type": "fn(id: number)",
-        "!url": "http://nodejs.org/api/process.html#process_process_setgid_id",
-        "!doc": "Sets the group identity of the process. This accepts either a numerical ID or a groupname string. If a groupname is specified, this method blocks while resolving it to a numerical ID."
-      },
-      getuid: {
-        "!type": "fn() -> number",
-        "!url": "http://nodejs.org/api/process.html#process_process_getuid",
-        "!doc": "Gets the user identity of the process. This is the numerical userid, not the username."
-      },
-      setuid: {
-        "!type": "fn(id: number)",
-        "!url": "http://nodejs.org/api/process.html#process_process_setuid_id",
-        "!doc": "Sets the user identity of the process. This accepts either a numerical ID or a username string. If a username is specified, this method blocks while resolving it to a numerical ID."
-      },
-      version: {
-        "!type": "string",
-        "!url": "http://nodejs.org/api/process.html#process_process_version",
-        "!doc": "A compiled-in property that exposes NODE_VERSION."
-      },
-      versions: {
-        http_parser: "string",
-        node: "string",
-        v8: "string",
-        ares: "string",
-        uv: "string",
-        zlib: "string",
-        openssl: "string",
-        "!url": "http://nodejs.org/api/process.html#process_process_versions",
-        "!doc": "A property exposing version strings of node and its dependencies."
-      },
-      config: {
-        target_defaults: {
-          cflags: "[?]",
-          default_configuration: "string",
-          defines: "[string]",
-          include_dirs: "[string]",
-          libraries: "[string]"
-        },
-        variables: {
-          clang: "number",
-          host_arch: "string",
-          node_install_npm: "bool",
-          node_install_waf: "bool",
-          node_prefix: "string",
-          node_shared_openssl: "bool",
-          node_shared_v8: "bool",
-          node_shared_zlib: "bool",
-          node_use_dtrace: "bool",
-          node_use_etw: "bool",
-          node_use_openssl: "bool",
-          target_arch: "string",
-          v8_no_strict_aliasing: "number",
-          v8_use_snapshot: "bool",
-          visibility: "string"
-        },
-        "!url": "http://nodejs.org/api/process.html#process_process_config",
-        "!doc": "An Object containing the JavaScript representation of the configure options that were used to compile the current node executable. This is the same as the \"config.gypi\" file that was produced when running the ./configure script."
-      },
-      kill: {
-        "!type": "fn(pid: number, signal?: string)",
-        "!url": "http://nodejs.org/api/process.html#process_process_kill_pid_signal",
-        "!doc": "Send a signal to a process. pid is the process id and signal is the string describing the signal to send. Signal names are strings like 'SIGINT' or 'SIGUSR1'. If omitted, the signal will be 'SIGTERM'."
-      },
-      pid: {
-        "!type": "number",
-        "!url": "http://nodejs.org/api/process.html#process_process_pid",
-        "!doc": "The PID of the process."
-      },
-      title: {
-        "!type": "string",
-        "!url": "http://nodejs.org/api/process.html#process_process_title",
-        "!doc": "Getter/setter to set what is displayed in 'ps'."
-      },
-      arch: {
-        "!type": "string",
-        "!url": "http://nodejs.org/api/process.html#process_process_arch",
-        "!doc": "What processor architecture you're running on: 'arm', 'ia32', or 'x64'."
-      },
-      platform: {
-        "!type": "string",
-        "!url": "http://nodejs.org/api/process.html#process_process_platform",
-        "!doc": "What platform you're running on: 'darwin', 'freebsd', 'linux', 'sunos' or 'win32'"
-      },
-      memoryUsage: {
-        "!type": "fn() -> process.memoryUsage.type",
-        "!url": "http://nodejs.org/api/process.html#process_process_memoryusage",
-        "!doc": "Returns an object describing the memory usage of the Node process measured in bytes."
-      },
-      nextTick: {
-        "!type": "fn(callback: fn())",
-        "!url": "http://nodejs.org/api/process.html#process_process_nexttick_callback",
-        "!doc": "On the next loop around the event loop call this callback. This is not a simple alias to setTimeout(fn, 0), it's much more efficient. It typically runs before any other I/O events fire, but there are some exceptions."
-      },
-      maxTickDepth: {
-        "!type": "number",
-        "!url": "http://nodejs.org/api/process.html#process_process_maxtickdepth",
-        "!doc": "The maximum depth of nextTick-calling nextTick-callbacks that will be evaluated before allowing other forms of I/O to occur."
-      },
-      umask: {
-        "!type": "fn(mask?: number) -> number",
-        "!url": "http://nodejs.org/api/process.html#process_process_umask_mask",
-        "!doc": "Sets or reads the process's file mode creation mask. Child processes inherit the mask from the parent process. Returns the old mask if mask argument is given, otherwise returns the current mask."
-      },
-      uptime: {
-        "!type": "fn() -> number",
-        "!url": "http://nodejs.org/api/process.html#process_process_uptime",
-        "!doc": "Number of seconds Node has been running."
-      },
-      hrtime: {
-        "!type": "fn() -> [number]",
-        "!url": "http://nodejs.org/api/process.html#process_process_hrtime",
-        "!doc": "Returns the current high-resolution real time in a [seconds, nanoseconds] tuple Array. It is relative to an arbitrary time in the past. It is not related to the time of day and therefore not subject to clock drift. The primary use is for measuring performance between intervals."
-      },
-      "!url": "http://nodejs.org/api/globals.html#globals_process",
-      "!doc": "The process object."
-    },
-    global: {
-      "!type": "<top>",
-      "!url": "http://nodejs.org/api/globals.html#globals_global",
-      "!doc": "In browsers, the top-level scope is the global scope. That means that in browsers if you're in the global scope var something will define a global variable. In Node this is different. The top-level scope is not the global scope; var something inside a Node module will be local to that module."
-    },
-    console: {
-      log: {
-        "!type": "fn(text: string)",
-        "!url": "http://nodejs.org/api/stdio.html#stdio_console_log_data",
-        "!doc": "Prints to stdout with newline. This function can take multiple arguments in a printf()-like way."
-      },
-      info: {
-        "!type": "fn(text: string)",
-        "!url": "http://nodejs.org/api/stdio.html#stdio_console_info_data",
-        "!doc": "Same as console.log."
-      },
-      error: {
-        "!type": "fn(text: string)",
-        "!url": "http://nodejs.org/api/stdio.html#stdio_console_error_data",
-        "!doc": "Same as console.log but prints to stderr."
-      },
-      warn: {
-        "!type": "fn(text: string)",
-        "!url": "http://nodejs.org/api/stdio.html#stdio_console_warn_data",
-        "!doc": "Same as console.error."
-      },
-      dir: {
-        "!type": "fn(obj: ?)",
-        "!url": "http://nodejs.org/api/stdio.html#stdio_console_dir_obj",
-        "!doc": "Uses util.inspect on obj and prints resulting string to stdout."
-      },
-      time: {
-        "!type": "fn(label: string)",
-        "!url": "http://nodejs.org/api/stdio.html#stdio_console_time_label",
-        "!doc": "Mark a time."
-      },
-      timeEnd: {
-        "!type": "fn(label: string)",
-        "!url": "http://nodejs.org/api/stdio.html#stdio_console_timeend_label",
-        "!doc": "Finish timer, record output."
-      },
-      trace: {
-        "!type": "fn(label: string)",
-        "!url": "http://nodejs.org/api/stdio.html#stdio_console_trace_label",
-        "!doc": "Print a stack trace to stderr of the current position."
-      },
-      assert: {
-        "!type": "fn(expression: bool)",
-        "!url": "http://nodejs.org/api/stdio.html#stdio_console_assert_expression_message",
-        "!doc": "Same as assert.ok() where if the expression evaluates as false throw an AssertionError with message."
-      },
-      "!url": "http://nodejs.org/api/globals.html#globals_console",
-      "!doc": "Used to print to stdout and stderr."
-    },
-    __filename: {
-      "!type": "string",
-      "!url": "http://nodejs.org/api/globals.html#globals_filename",
-      "!doc": "The filename of the code being executed. This is the resolved absolute path of this code file. For a main program this is not necessarily the same filename used in the command line. The value inside a module is the path to that module file."
-    },
-    __dirname: {
-      "!type": "string",
-      "!url": "http://nodejs.org/api/globals.html#globals_dirname",
-      "!doc": "The name of the directory that the currently executing script resides in."
-    },
-    setTimeout: "timers.setTimeout",
-    clearTimeout: "timers.clearTimeout",
-    setInterval: "timers.setInterval",
-    clearInterval: "timers.clearInterval",
-    module: {
-      "!type": "+Module",
-      "!url": "http://nodejs.org/api/globals.html#globals_module",
-      "!doc": "A reference to the current module. In particular module.exports is the same as the exports object. module isn't actually a global but rather local to each module."
     },
     Buffer: {
       "!type": "fn(str: string, encoding?: string) -> +Buffer",
@@ -2848,4 +2861,12 @@
       "!doc": "Used to handle binary data."
     }
   };
+
+  for (var name in globalDefs['!define'])
+    if (globalDefs['!define'].hasOwnProperty(name))
+      allDefs['!define'][name] = globalDefs['!define'][name];
+
+  for (var name in globalDefs)
+    if (name != '!define' && globalDefs.hasOwnProperty(name))
+      allDefs[name] = globalDefs[name];
 });
