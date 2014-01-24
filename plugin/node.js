@@ -38,7 +38,7 @@
     exports.propagate(scope.defProp("exports"));
     var moduleExports = scope.exports = module.defProp("exports");
     moduleExports.origin = module.origin = exports.origin = origin;
-    exports.propagate(moduleExports, WG_DEFAULT_EXPORT);
+    scope.getProp("exports").propagate(moduleExports, WG_DEFAULT_EXPORT);
     return scope;
   }
 
