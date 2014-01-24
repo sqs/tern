@@ -174,7 +174,7 @@
 
     server.on("afterLoad", function(file) {
       var mod = getModule(this._node, this._node.currentFile);
-      mod.origin = this._node.currentOrigin;
+      mod.origin = file.scope.getProp("exports").origin = this._node.currentOrigin;
       file.scope.exports.propagate(mod);
       this._node.currentFile = null;
       this._node.currentOrigin = null;
